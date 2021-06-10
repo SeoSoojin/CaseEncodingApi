@@ -29,3 +29,16 @@ it('Encode message on a image', () => {
     expect['toBe'](res,exp)
 
 })
+
+
+it('Upload an image', () =>{
+
+    const buffer = fs.readFileSync("./test.bmp")
+    const arrBuff = []
+    arrBuff.push(buffer)
+    const bufferStr = buffer.toString('utf-8')
+    const res = JSON.stringify(Image.upload(arrBuff, bufferStr))
+    const exp = `{"path":"./raw/test.bmp"}`
+    expect['toBe'](res,exp)
+    
+})

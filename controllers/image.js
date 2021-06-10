@@ -3,8 +3,11 @@ const Image = require("../models/image")
 //Controller to handle upload endpoint
 const upload = (req, res) => {
 
+  //Receives buffers
   const arr = []
-  var str = ''
+  //Receives string representations of buffers
+  let str = ''
+  let jsonResponse = {}
   req.on('data', (chunk) => {
 
     arr.push(chunk)
@@ -17,7 +20,11 @@ const upload = (req, res) => {
 
     try{
 
-      var jsonResponse = Image.upload(arr, str)
+      if(arr.length === 0 || str === ''){
+
+        throw [400, 'Error in requisition', 'Error: Requisition shouldn\'t be empty']
+      }
+       jsonResponse = Image.upload(arr, str)
 
     }catch(err){
 
@@ -35,8 +42,10 @@ const upload = (req, res) => {
 //Controller to handle Write-message-on-image endpoint
 const WriteMessageOnimage = (req, res) => {
 
-  var jsonBody = {}
-  var body = ''
+  let jsonBody = {}
+  //Receives string representations of chunks
+  let body = ''
+  let jsonResponse = {}
   req.on('data', (chunk) => {
 
     body += chunk.toString()
@@ -54,21 +63,22 @@ const WriteMessageOnimage = (req, res) => {
         throw [417, 'Image format should be .bmp', 'Error: File should be in bmp format']
 
       }
-      var jsonResponse = Image.encode(jsonBody.phrase, jsonBody.path)
-      res.writeHead(200, {'content-type': 'application/json'})
-      res.end(JSON.stringify(jsonResponse))
+      jsonResponse = Image.encode(jsonBody.phrase, jsonBody.path)
     }catch(err){
 
       res.writeHead(err[0], err[1])
       res.end(err[2].toString())
 
     }
+    res.writeHead(200, {'content-type': 'application/json'})
+    res.end(JSON.stringify(jsonResponse))
   })
 }
 
 //Controller to handle decode-message-from-image endpoint
 const decodeMessageFromImage = (req, res) => {
 
+  let jsonResponse = {}
   try{
     const name = req.url.slice(req.url.lastIndexOf('/')+1)
     const ext = name.slice(name.lastIndexOf('.'))
@@ -79,7 +89,7 @@ const decodeMessageFromImage = (req, res) => {
 
     }
     const path = "./encoded/" + name
-    var jsonResponse = Image.decode(path)
+    jsonResponse = Image.decode(path)
 
     
   }catch(err){
@@ -96,6 +106,7 @@ const decodeMessageFromImage = (req, res) => {
 //Controller to handle get-image endpoint
 const getImage = (req, res) => {
 
+  let image 
   const name = req.url.slice(req.url.lastIndexOf('/')+1)
   const path = "./encoded/" + name
   try{
@@ -107,7 +118,7 @@ const getImage = (req, res) => {
       throw [417, 'Image format should be .bmp', 'Error: File should be in bmp format']
 
     }
-    var image = Image.get(path)
+    image = Image.get(path)
     
   }catch(err){
 

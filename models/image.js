@@ -10,9 +10,10 @@ const fs = require('fs')
 const encode = (phraseRaw, path) => {
 
   let cont = 0
+  let buffer
 
   try{
-    var buffer = fs.readFileSync(path)
+    buffer = fs.readFileSync(path)
   }catch(err){
 
     if(err.code === 'ENOENT'){
@@ -80,8 +81,9 @@ const encode = (phraseRaw, path) => {
 //Returns a JSON with the message decoded
 function decode(path){
 
+  let buffer
   try{
-   var buffer = fs.readFileSync(path)
+    buffer = fs.readFileSync(path)
   }catch(err){
   
     if(err.code === 'ENOENT'){
@@ -95,11 +97,14 @@ function decode(path){
     }
 
   }
-  var arr = []
-  var arrAux= []
-  var cont = 0
-  var strFinal = ""
-  var end = "00101110"
+  //Receives last bit of the buffer byte
+  let arr = []
+  //Receives bits to make a byte
+  let arrAux= []
+  let cont = 0
+  let strFinal = ""
+  //'.' in binary
+  let end = "00101110"
   
 
   for(i = 54; i < buffer.length; i++){
@@ -123,7 +128,7 @@ function decode(path){
 
   for(i = 0; i < arrAux.length; i++){
 
-      var strAux = String.fromCharCode(parseInt(arrAux[i], 2))
+      let strAux = String.fromCharCode(parseInt(arrAux[i], 2))
       strFinal = strFinal.concat(strAux)
   }
 
@@ -142,43 +147,59 @@ function upload(arr, str){
 
   const bufferStr = Buffer.concat(arr).toString('hex')
   const arrBuff = str.split('\r\n')
-  var sizePos = 0
-  var sizePre = 0
-  var flag = 0
-  var pow = 0
-  var filename = ''
-  while(flag === 0){
+  //Starts in 0 then increcrements byte size if multiple headers are given in param
+  //Pos to pos image buffer
+  //Pre to pre image buffer
+  let sizePos = 0
+  let sizePre = 0
+  //Flag to signalize if enters in while to calculate the byte size of other data than image
+  let flag = 0
+  //Store how much padding image have
+  let pow = 0
+  let filename = ''
+  let bufferFinal = null
 
-    pow++
-    let aux = Buffer.from(arrBuff.pop()).length * 2
-    if(aux != 0){
-      sizePos += aux
-      flag = 1
+  if(arr.length !== 1){
+
+    while(flag === 0){
+
       pow++
-    }
-
-  }
-  sizePos +=  Math.pow(2, pow)
-  flag = 0
-  pow = 0
-  while(flag === 0){
-
-    pow++
-    let strAux = arrBuff.shift()
-    let aux = Buffer.from(strAux).length * 2
-    if(aux === 0){
-      flag = 1
-    }else{
-      if(strAux.includes('filename="')){
-
-        filename = strAux.slice(strAux.indexOf('filename="')+10, strAux.lastIndexOf('"'))
+      let aux = Buffer.from(arrBuff.pop()).length * 2
+      if(aux != 0){
+        sizePos += aux
+        flag = 1
+        pow++
       }
-      sizePre += aux
+  
     }
+    sizePos +=  Math.pow(2, pow)
+    flag = 0
+    pow = 0
+    while(flag === 0){
+  
+      pow++
+      let strAux = arrBuff.shift()
+      let aux = Buffer.from(strAux).length * 2
+      if(aux === 0){
+        flag = 1
+      }else{
+        if(strAux.includes('filename="')){
+  
+          filename = strAux.slice(strAux.indexOf('filename="')+10, strAux.lastIndexOf('"'))
+        }
+        sizePre += aux
+      }
+  
+    }
+    sizePre +=  Math.pow(2, pow)
+    bufferFinal = Buffer.from(bufferStr.slice(sizePre, -sizePos), 'hex')
+  }else{
+
+    filename = 'test.bmp'
+    bufferFinal = Buffer.from(bufferStr, 'hex')
 
   }
-  sizePre +=  Math.pow(2, pow)
-  const bufferFinal = Buffer.from(bufferStr.slice(sizePre, -sizePos), 'hex')
+
   const path = `./raw/${filename}`
 
   try{
@@ -207,9 +228,10 @@ function upload(arr, str){
 //Simple function to return a buffer from a given path
 function get(path){
 
+  let image
   try{
      
-    var image = fs.readFileSync(path)
+    image = fs.readFileSync(path)
 
   }catch(err){
 
