@@ -75,6 +75,7 @@ npm test-server
     ```bash 
     curl    --request GET \
             --url http://localhost:3030/get-image/test-encoded.bmp 
+            --output ./encoded/test.bmp
     ```
 
 
