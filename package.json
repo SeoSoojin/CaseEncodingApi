@@ -1,0 +1,14 @@
+{
+  "name": "case-cromai-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "npm run test-server && npm run test-models",
+    "test-server": "node server.test.js",
+    "test-models": "node ./models/image.test.js",
+    "start": "node server.js"
+  },
+  "author": "Hani Orbit",
+  "license": "ISC"
+}
