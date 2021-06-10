@@ -50,7 +50,7 @@ npm test-server
             --url http://localhost:3030/upload  
             --header 'Content-Type: multipart/form-data; 
             boundary=---011000010111000001101001'   
-        --form 'file=@test.bmp'
+            --form 'file=@test.bmp'
     ```
 
 
