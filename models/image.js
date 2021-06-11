@@ -35,6 +35,9 @@ const encode = (phraseRaw, path) => {
 
   }
   const phrase = Buffer.from(phraseRaw)
+  if(phrase.length * 8 > buffer.length - 54){
+    throw [400, "Error", "Message dosnt fit on image"]
+  }
   for(i = 0; i < phrase.length; i++){
 
     //Convert base 10 to binary and assure that this binary has at least 8 digits
