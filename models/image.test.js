@@ -13,7 +13,7 @@ it('Get an image stream', () => {
 
 it('Get decoded message', () =>{
 
-    const path = './test.bmp'
+    const path = './encoded/test-encoded.bmp'
     const exp = `{"message":"test."}`
     const res = JSON.stringify(Image.decode(path))
     expect['toBe'](res,exp)
